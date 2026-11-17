@@ -484,11 +484,16 @@
     font-weight: 700;
     color: var(--text);
   }
-  .kiki-unknown {
-    text-align: center;
-    font-weight: 900;
-    font-size: 20px;
+  .kiki-locked-grey {
+    background: #E2E8F0;
+    border: 2px solid #CBD5E1;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 16px;
+    font-weight: 800;
     color: #64748B;
+    text-align: center;
+    user-select: none;
   }
 
   /* Tahap 2: Jalur Pilihan */
@@ -849,6 +854,10 @@
 
   <!-- TAHAP 1: COCOKKAN BUKTI -->
   <main id="screen-stage1" class="panel hidden">
+    <p style="font-weight: 800; font-size: 18px; margin-bottom: 12px; color: var(--primary);">
+      Kolom Kiki akan kamu isi di Misi 2.
+    </p>
+
     <div id="s1-card-pool" class="card-pool" aria-label="Pilihan kartu bukti"></div>
 
     <table class="tree-table" aria-label="Pohon Unsur Cerita">
@@ -894,7 +903,7 @@
             </div>
           </td>
           <td data-label="Cerita 2 (Kiki)">
-            <div class="kiki-cell kiki-unknown" aria-label="Belum diisi">?</div>
+            <div class="kiki-locked-grey">Nanti di Misi 2</div>
           </td>
         </tr>
 
@@ -913,7 +922,7 @@
             </div>
           </td>
           <td data-label="Cerita 2 (Kiki)">
-            <div class="kiki-cell kiki-unknown" aria-label="Belum diisi">?</div>
+            <div class="kiki-locked-grey">Nanti di Misi 2</div>
           </td>
         </tr>
 
@@ -932,7 +941,7 @@
             </div>
           </td>
           <td data-label="Cerita 2 (Kiki)">
-            <div class="kiki-cell kiki-unknown" aria-label="Belum diisi">?</div>
+            <div class="kiki-locked-grey">Nanti di Misi 2</div>
           </td>
         </tr>
       </tbody>
@@ -1638,7 +1647,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
   function checkS1Complete() {
     if (Object.keys(state.s1.solvedTargets).length === 4 && !state.s1.completed) {
       state.s1.completed = true;
-      // Hapus pengecoh tersisa agar fokus ke refleksi
       $("s1-card-pool").classList.add("hidden");
       $("s1-reflection").classList.remove("hidden");
       $("s1-next-btn").classList.remove("hidden");
@@ -1649,7 +1657,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
   function handleS1Drop(cardObj, targetKey, targetEl) {
     if (state.s1.solvedTargets[targetKey]) return;
 
-    // Benar
     if (cardObj.target === targetKey) {
       lockS1Target(targetKey, cardObj.text);
       setOlie("Tepat! Itu bagian " + S1_LABELS[targetKey] + ".");
@@ -1657,14 +1664,12 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
       return;
     }
 
-    // Salah -> hitung percobaan pada target tersebut
     state.s1.attempts[targetKey]++;
     state.s1.wrongCards.push({ kartu: cardObj.text, ditaruhDi: S1_LABELS[targetKey] });
     triggerShake(cardObj.id);
 
     const attempt = state.s1.attempts[targetKey];
 
-    // Buat penjelasan jenis kesalahan
     let errorTypeMsg = "";
     if (!cardObj.target) {
       errorTypeMsg = cardObj.distractorMsg;
@@ -1677,7 +1682,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
     } else if (attempt === 2) {
       setOlie(`${errorTypeMsg} ${S1_PROMPTS[targetKey].p2}`);
     } else {
-      // Setelah dua kali salah -> tampilkan jawaban tepat beserta alasan singkat & kunci
       const rightCard = S1_CARDS.find(c => c.target === targetKey);
       lockS1Target(targetKey, rightCard.text);
       setOlie(S1_PROMPTS[targetKey].reveal);
@@ -1771,7 +1775,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
     state.selectedCardId = null;
     state.s2.solvedTargets[targetKey] = cardText;
 
-    // Animasi khusus
     if (targetKey === "p1_akibat") {
       const br = $("svg-branch-left");
       br.classList.remove("anim-branch-crack");
@@ -1938,7 +1941,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
       bucketEl.appendChild(cardEl);
       state.s3.placements[cardObj.id] = targetKey;
 
-      // Aktifkan tombol Periksa setelah semua kartu bagian itu ditempatkan
       if (Object.keys(state.s3.placements).length === cards.length) {
         $("s3-check-btn").disabled = false;
       }
@@ -1968,7 +1970,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
         setOlie("Tepat sekali! Semua kartu sudah di kelompok yang benar.");
         $("s3-check-btn").classList.add("hidden");
         $("s3-next-btn").classList.remove("hidden");
-        // Kunci kartu
         cards.forEach(c => {
           const el = $("card-" + c.id);
           if (el) el.disabled = true;
@@ -2139,7 +2140,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
       return;
     }
 
-    // Mode Cadangan bila URL belum diisi
     if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ISI_ALAMAT")) {
       if (kode !== "guru123") {
         msgEl.textContent = "Kode salah.";
@@ -2168,7 +2168,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
       return;
     }
 
-    // Mode Server Apps Script
     try {
       const res = await fetch(APPS_SCRIPT_URL + "?kode=" + encodeURIComponent(kode));
       const data = await res.json();
@@ -2176,7 +2175,6 @@ const APPS_SCRIPT_URL = "ISI_ALAMAT_APPS_SCRIPT_DI_SINI";
         msgEl.textContent = "Kode salah.";
         return;
       }
-      // Baris pertama adalah judul kolom
       teacherRows = Array.isArray(data.baris) && data.baris.length > 1 ? data.baris.slice(1) : [];
       $("teacher-auth-box").classList.add("hidden");
       $("teacher-data-box").classList.remove("hidden");
